@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
 				if (!parse_prefix(&ctx.clientmgr_ctx.prefix, optarg))
 					exit_error("Can not parse prefix");
 
-				printf("plen %i\n", ctx.clientmgr_ctx.prefix.plen);
+				printf("prefix length: %i\n", ctx.clientmgr_ctx.prefix.plen);
 				break;
 			case 'i':
 				ctx.icmp6_ctx.clientif = strdupa(optarg);

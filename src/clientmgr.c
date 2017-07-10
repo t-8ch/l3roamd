@@ -320,12 +320,15 @@ void client_ip_set_state(clientmgr_ctx *ctx, struct client *client, struct clien
     */
 void schedule_clientcheck(clientmgr_ctx *ctx, struct client *client, unsigned int timeout) {
 	struct client_task *data = calloc(1, sizeof(struct client_task));
-
+printf("SCHEDULING CLIENT CHECK %d\n", timeout);
+			print_client(client);
 	data->ctx = ctx;
 	memcpy(data->mac, client->mac, 6);
 
-	if (!reschedule_task(CTX(taskqueue), client->check_task, timeout))
+	if (!reschedule_task(CTX(taskqueue), client->check_task, timeout)) {
 		client->check_task = post_task(CTX(taskqueue), timeout, checkclient_task, free, data);
+		printf("drin:\n");
+	}
 }
 
 /** Wrapper for checkclient to be used in post_task.
@@ -361,9 +364,10 @@ void checkclient(clientmgr_ctx *ctx, uint8_t mac[6]) {
 
 		switch (ip->state) {
 			case IP_ACTIVE:
-				if (timespec_cmp(ip->timestamp, na_timeout) <= 0)
+				if (timespec_cmp(ip->timestamp, na_timeout) <= 0) {
+					printf("gehe gleich von active auf inactive \n");
 					client_ip_set_state(ctx, client, ip, IP_INACTIVE);
-
+				}
 				if (clientmgr_is_ipv4(ctx, &ip->address))
 					arp_send_request(CTX(arp), &ip->address);
 				else

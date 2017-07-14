@@ -52,8 +52,8 @@ void print_client(struct client *client) {
 	char ifname[IFNAMSIZ];
 
 	printf("Client %02x:%02x:%02x:%02x:%02x:%02x", client->mac[0], client->mac[1],
-	                                               client->mac[2], client->mac[3],
-	                                               client->mac[4], client->mac[5]);
+			client->mac[2], client->mac[3],
+			client->mac[4], client->mac[5]);
 
 	if (client_is_active(client))
 		printf(" (active");
@@ -90,9 +90,9 @@ void print_client(struct client *client) {
 }
 
 /** Check whether a client is currently active.
-    A client is considered active when at least one of its IP addresses is
-    currently active or tentative.
-    */
+  A client is considered active when at least one of its IP addresses is
+  currently active or tentative.
+  */
 bool client_is_active(const struct client *client) {
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
@@ -111,7 +111,7 @@ bool client_is_active(const struct client *client) {
 }
 
 /** Adds the special node client IP address.
-  */
+*/
 void add_special_ip(clientmgr_ctx *ctx, struct client *client) {
 	struct in6_addr address = node_client_ip_from_mac(client->mac);
 	printf("Adding special address\n");
@@ -119,7 +119,7 @@ void add_special_ip(clientmgr_ctx *ctx, struct client *client) {
 }
 
 /** Removes the special node client IP address.
-  */
+*/
 void remove_special_ip(clientmgr_ctx *ctx, struct client *client) {
 	struct in6_addr address = node_client_ip_from_mac(client->mac);
 	printf("Removing special address\n");
@@ -127,8 +127,8 @@ void remove_special_ip(clientmgr_ctx *ctx, struct client *client) {
 }
 
 /** Given an IP address returns the IP object of a client.
-    Returns NULL if no object is found.
-    */
+  Returns NULL if no object is found.
+  */
 struct client_ip *get_client_ip(struct client *client, const struct in6_addr *address) {
 	for (int i = 0; i < VECTOR_LEN(client->addresses); i++) {
 		struct client_ip *e = &VECTOR_INDEX(client->addresses, i);
@@ -141,8 +141,8 @@ struct client_ip *get_client_ip(struct client *client, const struct in6_addr *ad
 }
 
 /** Removes an IP address from a client. Safe to call if the IP is not
-    currently present in the clients list.
-    */
+  currently present in the clients list.
+  */
 void delete_client_ip(struct client *client, const struct in6_addr *address) {
 	for (int i = 0; i < VECTOR_LEN(client->addresses); i++) {
 		struct client_ip *e = &VECTOR_INDEX(client->addresses, i);
@@ -158,7 +158,7 @@ void delete_client_ip(struct client *client, const struct in6_addr *address) {
 }
 
 /** Adds a route.
-  */
+*/
 void client_add_route(clientmgr_ctx *ctx, struct client *client, struct client_ip *ip) {
 	if (clientmgr_is_ipv4(ctx, &ip->address)) {
 		struct in_addr ip4 = {
@@ -175,7 +175,7 @@ void client_add_route(clientmgr_ctx *ctx, struct client *client, struct client_i
 }
 
 /** Remove a route.
-  */
+*/
 void client_remove_route(clientmgr_ctx *ctx, struct client *client, struct client_ip *ip) {
 	if (clientmgr_is_ipv4(ctx, &ip->address)) {
 		struct in_addr ip4 = {
@@ -192,8 +192,8 @@ void client_remove_route(clientmgr_ctx *ctx, struct client *client, struct clien
 }
 
 /** Given a MAC address returns a client object.
-    Returns NULL if the client is not known.
-    */
+  Returns NULL if the client is not known.
+  */
 struct client *get_client(clientmgr_ctx *ctx, const uint8_t mac[6]) {
 	for (int i = 0; i < VECTOR_LEN(ctx->clients); i++) {
 		struct client *e = &VECTOR_INDEX(ctx->clients, i);
@@ -206,7 +206,7 @@ struct client *get_client(clientmgr_ctx *ctx, const uint8_t mac[6]) {
 }
 
 /** Get a client or create a new, empty one.
-  */
+*/
 struct client *get_or_create_client(clientmgr_ctx *ctx, const uint8_t mac[6]) {
 	struct client *client = get_client(ctx, mac);
 
@@ -221,8 +221,8 @@ struct client *get_or_create_client(clientmgr_ctx *ctx, const uint8_t mac[6]) {
 }
 
 /** Given a MAC address deletes a client. Safe to call if the client is not
-    known.
-    */
+  known.
+  */
 void delete_client(clientmgr_ctx *ctx, const uint8_t mac[6]) {
 	// TODO free addresses vector here?
 	for (int i = 0; i < VECTOR_LEN(ctx->clients); i++) {
@@ -250,7 +250,7 @@ const char *state_str(enum ip_state state) {
 }
 
 /** Change state of an IP address. Trigger all side effects like resetting
-    counters, timestamps and route changes.
+  counters, timestamps and route changes.
   */
 void client_ip_set_state(clientmgr_ctx *ctx, struct client *client, struct client_ip *ip, enum ip_state state) {
 	struct timespec now;
@@ -310,18 +310,18 @@ void client_ip_set_state(clientmgr_ctx *ctx, struct client *client, struct clien
 	inet_ntop(AF_INET6, &ip->address, ip_str, INET6_ADDRSTRLEN);
 
 	printf("%s changes from %s to %s\n", ip_str, state_str(ip->state),
-	                                     state_str(state));
+			state_str(state));
 
 	ip->state = state;
 }
 
 /** Schedule a client check. Set timeout to 0 in order to check the client at
-    the next iteration.
-    */
+  the next iteration.
+  */
 void schedule_clientcheck(clientmgr_ctx *ctx, struct client *client, unsigned int timeout) {
 	struct client_task *data = calloc(1, sizeof(struct client_task));
-printf("SCHEDULING CLIENT CHECK %d\n", timeout);
-			print_client(client);
+	printf("SCHEDULING CLIENT CHECK %d\n", timeout);
+	print_client(client);
 	data->ctx = ctx;
 	memcpy(data->mac, client->mac, 6);
 
@@ -332,14 +332,27 @@ printf("SCHEDULING CLIENT CHECK %d\n", timeout);
 }
 
 /** Wrapper for checkclient to be used in post_task.
-  */
+*/
 void checkclient_task(void *d) {
 	struct client_task *data = d;
 	checkclient(data->ctx, data->mac);
 }
 
+
+struct timespec get_earliest_ip_timestamp(struct client *client) {
+	struct timespec oldest;
+
+	for (int i = 0; i < VECTOR_LEN(client->addresses); i++) {
+		struct client_ip *ip = &VECTOR_INDEX(client->addresses, i);
+		if (timespec_cmp(oldest, ip->timestamp) == -1 ) {
+			oldest = ip->timestamp;
+		}
+	}
+	return oldest;
+}
+
 /** Check a client.
-  */
+*/
 void checkclient(clientmgr_ctx *ctx, uint8_t mac[6]) {
 	struct client *client = get_client(ctx, mac);
 
@@ -365,8 +378,7 @@ void checkclient(clientmgr_ctx *ctx, uint8_t mac[6]) {
 		switch (ip->state) {
 			case IP_ACTIVE:
 				if (timespec_cmp(ip->timestamp, na_timeout) <= 0) {
-					printf("gehe gleich von active auf inactive \n");
-					client_ip_set_state(ctx, client, ip, IP_INACTIVE);
+					client_ip_set_state(ctx, client, ip, IP_TENTATIVE);
 				}
 				if (clientmgr_is_ipv4(ctx, &ip->address))
 					arp_send_request(CTX(arp), &ip->address);
@@ -399,27 +411,28 @@ void checkclient(clientmgr_ctx *ctx, uint8_t mac[6]) {
 		return;
 	}
 
-	// TODO schedule at earliest IP timeout
-	schedule_clientcheck(ctx, client, IP_CHECKCLIENT_TIMEOUT);
+	schedule_clientcheck(ctx, client, IP_CHECKCLIENT_INTERVAL);
 }
 
 /** Check whether an IP address is contained in a client prefix.
-  */
+*/
 bool clientmgr_valid_address(clientmgr_ctx *ctx, struct in6_addr *address) {
 	return prefix_contains(&ctx->prefix, address) | clientmgr_is_ipv4(ctx, address);
 }
 
 /** Check whether an IP address is contained in the IPv4 prefix.
-  */
+*/
 bool clientmgr_is_ipv4(clientmgr_ctx *ctx, struct in6_addr *address) {
 	return prefix_contains(&ctx->v4prefix, address);
 }
 
 /** Add a new address to a client identified by its MAC.
- */
+*/
 void clientmgr_add_address(clientmgr_ctx *ctx, struct in6_addr *address, uint8_t *mac, unsigned int ifindex) {
 	// TODO sicherstellen, dass IPs nur jeweils einem Client zugeordnet sind
 
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
 	char str[INET6_ADDRSTRLEN];
 	inet_ntop(AF_INET6, address, str, INET6_ADDRSTRLEN);
 	printf("Add Address: %s (MAC %02x:%02x:%02x:%02x:%02x:%02x)\n", str, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -454,11 +467,11 @@ void clientmgr_add_address(clientmgr_ctx *ctx, struct in6_addr *address, uint8_t
 	if (ip_is_new)
 		intercom_info(CTX(intercom), NULL, client, false);
 
-	schedule_clientcheck(ctx, client, IP_CHECKCLIENT_TIMEOUT);
+	schedule_clientcheck(ctx, client, IP_CHECKCLIENT_INTERVAL);
 }
 
 /** Notify the client manager about a new MAC (e.g. a new wifi client).
-  */
+*/
 void clientmgr_notify_mac(clientmgr_ctx *ctx, uint8_t *mac, unsigned int ifindex) {
 	struct client *client = get_or_create_client(ctx, mac);
 
@@ -466,7 +479,7 @@ void clientmgr_notify_mac(clientmgr_ctx *ctx, uint8_t *mac, unsigned int ifindex
 	if_indextoname(ifindex, ifname);
 
 	printf("\033[34mnew client %02x:%02x:%02x:%02x:%02x:%02x on %s\033[0m\n",
-	       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], ifname);
+			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], ifname);
 
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
@@ -494,7 +507,7 @@ void clientmgr_notify_mac(clientmgr_ctx *ctx, uint8_t *mac, unsigned int ifindex
 }
 
 /** Handle info request.
-  */
+*/
 void clientmgr_handle_claim(clientmgr_ctx *ctx, const struct in6_addr *sender, uint8_t mac[6]) {
 	struct client *client = get_client(ctx, mac);
 
@@ -524,7 +537,7 @@ void clientmgr_handle_claim(clientmgr_ctx *ctx, const struct in6_addr *sender, u
 }
 
 /** Handle incoming client info.
-  */
+*/
 void clientmgr_handle_info(clientmgr_ctx *ctx, struct client *foreign_client, bool relinquished) {
 	struct client *client = get_client(ctx, foreign_client->mac);
 

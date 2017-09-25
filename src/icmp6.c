@@ -64,8 +64,12 @@ void icmp6_init(icmp6_ctx *ctx) {
 
 void icmp6_setup_interface(icmp6_ctx *ctx) {
 	ctx->ok = false;
+	int rc;
 
-	int rc = setsockopt(ctx->fd, SOL_SOCKET, SO_BINDTODEVICE, ctx->clientif, strnlen(ctx->clientif, IFNAMSIZ-1));
+	if (!ctx->clientif)
+		return;
+
+	rc = setsockopt(ctx->fd, SOL_SOCKET, SO_BINDTODEVICE, ctx->clientif, strnlen(ctx->clientif, IFNAMSIZ-1));
 
 	printf("Setting up icmp6 interface: %i\n", rc);
 
